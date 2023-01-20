@@ -2,8 +2,7 @@
 [build]
   command = "ng build"
   functions = "netlify/functions"
-  publish = "dist"
-  base = "/"
+  publish = "dist/test-angular-app-actions"
 
   ## Uncomment to use this redirect for Single Page Applications like create-react-app.
   ## Not needed for static site generators.
