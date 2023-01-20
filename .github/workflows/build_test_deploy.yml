@@ -1,0 +1,43 @@
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Caching node modules
+        id: cache-nodemodules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Installing dependencies
+        if: ${{ steps.cache-nodemodules.outputs.cache-hit != 'true' }}
+        run: |
+          echo "Installing dependencies..."
+          npm ci --ignore-scripts
+          echo "Dependencies installed!"
+
+      - name: Build
+        run: npm run build
+
+      - name: Run
+        run: npm test -- --watch=false --browsers=ChromeHeadless
